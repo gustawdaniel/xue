@@ -6,7 +6,7 @@
     "dev": "doppler run -- nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "doppler run -- nuxt prepare"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.6.6",
@@ -20,6 +20,9 @@
     "axios": "^1.3.5",
     "server": "workspace:*",
     "sweetalert2": "^11.7.3",
-    "trpc": "workspace:*"
+    "trpc": "workspace:*",
+    "@headlessui/vue": "^1.7.10",
+    "@heroicons/vue": "^2.0.16",
+    "database": "workspace:*"
   }
 }

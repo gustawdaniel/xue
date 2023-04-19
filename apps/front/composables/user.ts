@@ -1,8 +1,9 @@
 type UserRole = "admin";
 
-export const useUser = () => {
+export interface User {
+  id: string, email: string, avatar: string, name: string, roles: UserRole[]
+}
 
-  return useCookie<{
-    id: string, email: string, avatar: string, name: string, roles: UserRole[]
-  } | null>("user");
+export const useUser = () => {
+  return useCookie<User | null>("user");
 };

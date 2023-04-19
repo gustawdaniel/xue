@@ -3,6 +3,11 @@ import { onMounted } from "#imports";
 
 const app = useNuxtApp()
 
+definePageMeta({
+  layout: 'app',
+  // layout: false,
+})
+
 onMounted(async () => {
   console.log('mounted');
 
