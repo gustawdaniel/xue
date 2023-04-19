@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { onMounted } from "#imports";
 
-const { $client } = useNuxtApp()
+const app = useNuxtApp()
 
 onMounted(async () => {
   console.log('mounted');
 
-  const res = await $client.userList.query();
+  const res = await app.$client.userList.query();
 
   console.log("res", res);
 

@@ -9,9 +9,15 @@
   },
   "dependencies": {
     "@trpc/server": "^10.20.0",
-    "database": "workspace:*"
+    "database": "workspace:*",
+    "dayjs": "^1.11.7",
+    "google-auth-library": "^8.7.0",
+    "jsonwebtoken": "^9.0.0"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.1"
+  }
 }

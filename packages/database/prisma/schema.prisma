@@ -98,20 +98,22 @@ model sentences {
   @@unique([text, lang])
 }
 
+enum UserRole {
+  admin
+}
+
 model users {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   answers       answers[]
   repetitions   repetitions[]
   sessions      sessions[]
-  email         String? // @unique(sparse: true) not implemented https://github.com/prisma/prisma/issues/3419
-  name          String?
-  avatar        String?
+  email         String @unique()
+  name          String
+  avatar        String
   /// @TypeGraphQL.omit(output: true)
   password      String?
   /// @TypeGraphQL.omit(input: true)
   created_at    DateTime      @default(now())
-  /// @TypeGraphQL.omit(input: true)
-  registered_at DateTime?
   /// @TypeGraphQL.omit(input: true)
   last_login_at DateTime?
 
@@ -121,6 +123,7 @@ model users {
   //  default_course    courses?  @relation("default_course", fields: [default_course_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   default_course_id String?   @db.ObjectId
   courses           courses[] @relation("courses_started_by_user")
+  roles                UserRole[]             @default([])
 
   @@unique([default_course_id, id])
 }

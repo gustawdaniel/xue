@@ -3,19 +3,23 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "doppler run -- nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.6.6",
+    "@tailwindcss/forms": "^0.5.3",
     "@types/node": "^18",
     "nuxt": "^3.4.1"
   },
   "dependencies": {
     "@trpc/client": "^10.20.0",
     "@trpc/server": "^10.20.0",
+    "axios": "^1.3.5",
     "server": "workspace:*",
+    "sweetalert2": "^11.7.3",
     "trpc": "workspace:*"
   }
 }
