@@ -1,0 +1,212 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+//generator client {
+//  provider = "prisma-client-js"
+//  output   = "./generated/lang"
+//}
+//generator typegraphql {
+//  provider               = "typegraphql-prisma"
+//  output                 = "./generated/lang-ts"
+//  customPrismaImportPath = "../lang"
+//}
+
+enum Lang {
+  uk
+  en
+  es
+  pl
+}
+
+enum TranslationProvider {
+  deepl
+  reverso
+  google
+}
+
+model words {
+  id           String                      @id @default(auto()) @map("_id") @db.ObjectId
+  range        Int
+  freq         Int
+  word         String
+  lang         Lang
+  translations TranslationWitchProviders[]
+  deleted_at   DateTime?
+  answers      answers[]
+  repetitions  repetitions[]
+
+  @@unique([range, lang])
+}
+
+model langs {
+  name String
+  code Lang   @id @map("_id")
+  flag String
+}
+
+model sets {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  code        String // eg en_news or pl_web_0.3
+  name        String
+  description String
+  icon        String
+  tags        String[]
+  lang        Lang
+  freq_sum    Int // derived
+  words_count Int // derived
+
+  author    users?  @relation(fields: [author_id], references: [id])
+  author_id String? @db.ObjectId
+
+  frequencies frequencies[]
+}
+
+model frequencies {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  set_id String @db.ObjectId
+  set    sets   @relation(fields: [set_id], references: [id])
+  word   String
+  range  Int
+  freq   Int
+
+  @@unique([set_id, word])
+}
+
+model sessions {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       users     @relation(fields: [user_id], references: [id])
+  user_id    String    @db.ObjectId
+  started_at DateTime
+  ended_at   DateTime?
+}
+
+model sentences {
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  text  String
+  lang  Lang
+  words String[]
+
+  @@unique([text, lang])
+}
+
+model users {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  answers       answers[]
+  repetitions   repetitions[]
+  sessions      sessions[]
+  email         String? // @unique(sparse: true) not implemented https://github.com/prisma/prisma/issues/3419
+  name          String?
+  avatar        String?
+  /// @TypeGraphQL.omit(output: true)
+  password      String?
+  /// @TypeGraphQL.omit(input: true)
+  created_at    DateTime      @default(now())
+  /// @TypeGraphQL.omit(input: true)
+  registered_at DateTime?
+  /// @TypeGraphQL.omit(input: true)
+  last_login_at DateTime?
+
+  sets sets[]
+
+  // TOTO: waiting for https://github.com/prisma/prisma/issues/3387
+  //  default_course    courses?  @relation("default_course", fields: [default_course_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  default_course_id String?   @db.ObjectId
+  courses           courses[] @relation("courses_started_by_user")
+
+  @@unique([default_course_id, id])
+}
+
+type TranslationWitchProviders {
+  lang      Lang
+  word      String
+  providers TranslationProvider[]
+}
+
+type Range {
+  from Int
+  to   Int
+}
+
+model courses {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  source         Lang
+  target         Lang
+  history_ranges Range[]
+  repetitions    repetitions[]
+  iteration      Int
+
+  user    users  @relation("courses_started_by_user", fields: [user_id], references: [id])
+  user_id String @db.ObjectId
+}
+
+model answers {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  word_id      String       @db.ObjectId
+  answer       String
+  source       Lang
+  target       Lang
+  displayed_at DateTime
+  /// @TypeGraphQL.omit(input: true)
+  answered_at  DateTime?
+  word         words        @relation(fields: [word_id], references: [id])
+  /// @TypeGraphQL.omit(input: true)
+  word_range   Int
+  /// @TypeGraphQL.omit(input: true)
+  is_correct   Boolean
+  /// @TypeGraphQL.omit(input: true)
+  user         users        @relation(fields: [user_id], references: [id])
+  /// @TypeGraphQL.omit(input: true)
+  user_id      String       @db.ObjectId
+  /// @TypeGraphQL.omit(input: true)
+  repetition   repetitions?
+  /// @TypeGraphQL.omit(input: true)
+  iteration    Int
+}
+
+type RepetitionsHistory {
+  super_memo       SuperMemo
+  created_at       DateTime
+  answered_at      DateTime  @default(now())
+  prev_answer_id   String    @db.ObjectId
+  next_answer_id   String    @db.ObjectId
+  prev_iteration   Int
+  next_iteration   Int
+  prev_correctness Float
+  next_correctness Float
+}
+
+type SuperMemo {
+  interval   Int
+  repetition Int
+  efactor    Float
+}
+
+model repetitions {
+  id                   String               @id @default(auto()) @map("_id") @db.ObjectId
+  user                 users                @relation(fields: [user_id], references: [id])
+  user_id              String               @db.ObjectId
+  source               Lang
+  target               Lang
+  course               courses              @relation(fields: [course_id], references: [id])
+  course_id            String               @db.ObjectId
+  answer               answers              @relation(fields: [answer_id], references: [id])
+  answer_id            String               @unique @db.ObjectId
+  word                 words                @relation(fields: [word_id], references: [id])
+  word_id              String               @db.ObjectId
+  history              RepetitionsHistory[]
+  created_at           DateTime             @default(now())
+  created_at_iteration Int
+  iteration            Int
+  super_memo           SuperMemo
+
+  @@unique([user_id, course_id, iteration])
+}

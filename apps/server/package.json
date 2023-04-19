@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "router.ts",
+  "types": "router.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^8.2.1",
+    "@trpc/server": "^10.20.0",
+    "database": "workspace:*",
+    "trpc": "workspace:*",
+    "fastify": "^4.15.0",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "tsx": "^3.12.6"
+  }
+}
