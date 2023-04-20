@@ -25,6 +25,9 @@ enum Lang {
   en
   es
   pl
+  de
+  fr
+  ru
 }
 
 enum TranslationProvider {
