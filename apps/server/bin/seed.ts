@@ -48,7 +48,7 @@ async function setWordsSet(setData: WordsSetData, user_id: string): Promise<{ se
         code: setData.code,
         name: setData.name,
         author_id: user_id,
-        description: "",
+        description: "https://storage.googleapis.com/books/ngrams/books/datasetsv2.html",
         lang: setData.lang,
         icon: setData.icon,
         tags: ["ngram", "google"],
@@ -89,39 +89,63 @@ async function setWordsFrequencies(set_id: string, wordsPayload: string) {
   await prisma.sets.update({ where: { id: set_id }, data: { words_count, freq_sum } });
 }
 
+function langCode(lang: Lang): string {
+  return `${lang}-1-ngram-google-2012`
+}
+
 function getSetsData(): Array<WordsSetData> {
   return [
     {
-      code: "de-1-ngram-google-2012",
+      code: langCode("de"),
       name: "German",
-      icon: "https://flagicons.lipis.dev/flags/1x1/de.svg",
+      icon: "https://flagcdn.com/de.svg",
       lang: "de"
     },
     {
-      code: "en-1-ngram-google-2012",
+      code: langCode("en"),
       name: "English",
-      icon: "https://flagicons.lipis.dev/flags/1x1/us.svg",
+      icon: "https://flagcdn.com/us.svg",
       lang: "en"
     },
     {
-      code: "es-1-ngram-google-2012",
+      code: langCode("es"),
       name: "Spanish",
-      icon: "https://flagicons.lipis.dev/flags/1x1/es.svg",
+      icon: "https://flagcdn.com/es.svg",
       lang: "es"
     },
     {
-      code: "fr-1-ngram-google-2012",
+      code: langCode("fr"),
       name: "French",
-      icon: "https://flagicons.lipis.dev/flags/1x1/fr.svg",
+      icon: "https://flagcdn.com/fr.svg",
       lang: "fr"
     },
     {
-      code: "ru-1-ngram-google-2012",
+      code: langCode("ru"),
       name: "Russian",
-      icon: "https://flagicons.lipis.dev/flags/1x1/ru.svg",
+      icon: "https://flagcdn.com/ru.svg",
       lang: "ru"
     }
   ];
+}
+
+async function setDefaultCourse(user: Pick<users, 'id' | 'default_course_id'>) {
+  if(!user.default_course_id) {
+    const defaultCourse = await prisma.courses.create({
+      data: {
+        source_set: {
+          connect: {code: langCode("en")}
+        },
+        target_lang: 'pl',
+        user: {
+          connect: {
+            id: user.id
+          }
+        },
+        iteration: 0,
+      }
+    });
+    await prisma.users.update({where:{id: user.id}, data: {default_course_id: defaultCourse.id}});
+  }
 }
 
 async function main() {
@@ -137,6 +161,8 @@ async function main() {
     }
 
   }
+
+  await setDefaultCourse(user)
 }
 
 main().catch(console.error);

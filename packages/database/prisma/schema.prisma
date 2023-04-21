@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -36,18 +37,71 @@ enum TranslationProvider {
   google
 }
 
-model words {
-  id           String                      @id @default(auto()) @map("_id") @db.ObjectId
-  range        Int
-  freq         Int
-  word         String
-  lang         Lang
-  translations TranslationWitchProviders[]
-  deleted_at   DateTime?
-  answers      answers[]
-  repetitions  repetitions[]
+enum PartOfSpeech {
+  adjective // ADJ // adjective	*big, old, green, incomprehensible, first*
+  adposition // ADP // adposition	*in, to, during*
+  adverb // ADV // adverb	*very, tomorrow, down, where, there*
+  auxiliary // AUX // auxiliary	*is, has (done), will (do), should (do)*
+  conjunction // CONJ // conjunction	*and, or, but*
+  coordinating // CCONJ // coordinating conjunction	*and, or, but*
+  determiner // DET // determiner	*a, an, the*
+  interjection // INTJ // interjection	*psst, ouch, bravo, hello*
+  noun // NOUN // noun	*girl, cat, tree, air, beauty*
+  numeral // NUM // numeral	*1, 2017, one, seventy-seven, IV, MMXIV*
+  particle // PART //particle	*’s, not,*
+  pronoun // PRON //pronoun	*I, you, he, she, myself, themselves, somebody*
+  proper // PROPN //proper noun	*Mary, John, London, NATO, HBO*
+  punctuation // PUNCT //punctuation	*., (, ), ?*
+  subordinating // SCONJ //subordinating conjunction	*if, while, that*
+  symbol // SYM //symbol	*$, %, §, ©, +, −, ×, ÷, =, :), 😝*
+  verb // VERB //verb	*run, runs, running, eat, ate, eating*
+  other // X //other	*sfpksdpsxmsa*
+  space // SPACE //space
+}
 
-  @@unique([range, lang])
+type SimpleTranslations {
+  from_lang Lang
+  from_text String
+  to_lang   Lang
+  to_text   String
+}
+
+type Meaning {
+  pos       PartOfSpeech?
+  to_text   String
+  sentences SimpleTranslations[]
+}
+
+model caches {
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  key   String   @unique
+  value Json
+  meta  Json?
+  tags  String[] @default([])
+}
+
+model translations {
+  id        String              @id @default(auto()) @map("_id") @db.ObjectId
+  from_lang Lang
+  from_text String
+  to_lang   Lang
+  to_text   String
+  meanings  Meaning[]
+  provider  TranslationProvider
+
+  @@unique([from_text, from_lang, to_lang, provider])
+}
+
+model words {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  //  range        Int
+  //  freq         Int
+  word        String
+  lang        Lang
+  //  translations TranslationWitchProviders[]
+  deleted_at  DateTime?
+  answers     answers[]
+  repetitions repetitions[]
 }
 
 model langs {
@@ -58,7 +112,7 @@ model langs {
 
 model sets {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  code        String // eg en_news or pl_web_0.3
+  code        String   @unique // eg en_news or pl_web_0.3
   name        String
   description String
   icon        String
@@ -71,6 +125,7 @@ model sets {
   author_id String? @db.ObjectId
 
   frequencies frequencies[]
+  courses     courses[]
 }
 
 model frequencies {
@@ -110,32 +165,24 @@ model users {
   answers       answers[]
   repetitions   repetitions[]
   sessions      sessions[]
-  email         String @unique()
+  email         String        @unique()
   name          String
   avatar        String
-  /// @TypeGraphQL.omit(output: true)
   password      String?
-  /// @TypeGraphQL.omit(input: true)
   created_at    DateTime      @default(now())
-  /// @TypeGraphQL.omit(input: true)
   last_login_at DateTime?
 
   sets sets[]
 
   // TOTO: waiting for https://github.com/prisma/prisma/issues/3387
   //  default_course    courses?  @relation("default_course", fields: [default_course_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  default_course_id String?   @db.ObjectId
-  courses           courses[] @relation("courses_started_by_user")
-  roles                UserRole[]             @default([])
+  default_course_id String?    @db.ObjectId
+  courses           courses[]  @relation("courses_started_by_user")
+  roles             UserRole[] @default([])
 
   @@unique([default_course_id, id])
 }
 
-type TranslationWitchProviders {
-  lang      Lang
-  word      String
-  providers TranslationProvider[]
-}
 
 type Range {
   from Int
@@ -144,14 +191,16 @@ type Range {
 
 model courses {
   id             String        @id @default(auto()) @map("_id") @db.ObjectId
-  source         Lang
-  target         Lang
+  source_set_id  String        @db.ObjectId
+  source_set     sets          @relation(fields: [source_set_id], references: [id])
+  target_lang    Lang
   history_ranges Range[]
   repetitions    repetitions[]
   iteration      Int
 
-  user    users  @relation("courses_started_by_user", fields: [user_id], references: [id])
-  user_id String @db.ObjectId
+  user    users     @relation("courses_started_by_user", fields: [user_id], references: [id])
+  user_id String    @db.ObjectId
+  answers answers[]
 }
 
 model answers {
@@ -161,21 +210,16 @@ model answers {
   source       Lang
   target       Lang
   displayed_at DateTime
-  /// @TypeGraphQL.omit(input: true)
   answered_at  DateTime?
   word         words        @relation(fields: [word_id], references: [id])
-  /// @TypeGraphQL.omit(input: true)
   word_range   Int
-  /// @TypeGraphQL.omit(input: true)
   is_correct   Boolean
-  /// @TypeGraphQL.omit(input: true)
   user         users        @relation(fields: [user_id], references: [id])
-  /// @TypeGraphQL.omit(input: true)
   user_id      String       @db.ObjectId
-  /// @TypeGraphQL.omit(input: true)
+  course       courses      @relation(fields: [course_id], references: [id])
+  course_id    String       @db.ObjectId
   repetition   repetitions?
-  /// @TypeGraphQL.omit(input: true)
-  iteration    Int
+  iteration    Int          @default(0)
 }
 
 type RepetitionsHistory {
