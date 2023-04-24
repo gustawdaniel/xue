@@ -4,11 +4,9 @@
  */
 
 process.env = {
-  GOOGLE_CLIENT_ID: 'test',
-  JWT_SECRET_KEY: 'test',
-  GOOGLE_CLIENT_SECRET: 'test'
-}
-
+  GOOGLE_CLIENT_ID: "test",
+  JWT_SECRET_KEY: "test",
+};
 
 export default {
   // All imported modules in your tests should be mocked automatically
@@ -181,7 +179,7 @@ export default {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    "^.+\\.tsx?$": "esbuild-jest"
+    "^.+\\.tsx?$": "esbuild-jest",
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation

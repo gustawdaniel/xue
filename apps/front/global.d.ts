@@ -1,13 +1,17 @@
-import 'jest-extended';
+import "jest-extended";
 
 // https://stackoverflow.com/a/59499895/6277151
-import {GoogleLoginCallbackPayload} from "~/intefaces/GoogleLoginCallbackPayload";
+import { GoogleLoginCallbackPayload } from "~/intefaces/GoogleLoginCallbackPayload";
 
-export {}
+export {};
 
 declare global {
-    interface Window {
-        __NUXT__: any
-        googleLoginCallback: (payloadClient: GoogleLoginCallbackPayload) => void
+  interface Window {
+    __NUXT__: any;
+    googleLoginCallback: (payloadClient: GoogleLoginCallbackPayload) => void;
+    responsiveVoice: {
+      speak(word: string, lang: string): void
+      getVoices(): { name: string }
     }
+  }
 }

@@ -1,7 +1,9 @@
 <template>
   <nav v-if="!user || !user.email" class="flex space-x-4">
     <NuxtLink
-      v-for="item in userNavigation.filter((n) => n.private === Boolean(user && user?.email))"
+      v-for="item in userNavigation.filter(
+        (n) => n.private === Boolean(user && user?.email)
+      )"
       :key="item.name"
       :href="item.href"
       :class="[
@@ -27,16 +29,16 @@ import {
   PopoverPanel,
   TransitionChild,
   TransitionRoot,
-} from '@headlessui/vue'
+} from "@headlessui/vue";
 import { useAsyncData, useRuntimeConfig, useUser } from "#imports";
-import { navigation, userNavigation } from '~/helpers/navigation'
-const config = useRuntimeConfig()
+import { navigation, userNavigation } from "~/helpers/navigation";
+const config = useRuntimeConfig();
 
 const user = useUser();
 
 function isCurrent(name: string): boolean {
   //TODO: fix
-  return false
+  return false;
 }
 </script>
 

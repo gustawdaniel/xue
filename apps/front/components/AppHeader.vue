@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import { Popover, PopoverButton, TransitionRoot } from '@headlessui/vue'
-import { Bars3Icon, XCircleIcon } from '@heroicons/vue/24/outline'
+import { Popover, PopoverButton, TransitionRoot } from "@headlessui/vue";
+import { Bars3Icon, XCircleIcon } from "@heroicons/vue/24/outline";
 import { ref, useAsyncData, useUser } from "#imports";
-import AppHeaderMobileMenu from '~/components/AppHeaderMobileMenu.vue'
+import AppHeaderMobileMenu from "~/components/AppHeaderMobileMenu.vue";
 
-const user = useUser()
-const open = ref<boolean>(false)
+const user = useUser();
+const open = ref<boolean>(false);
 </script>
 
 <template>
   <Popover v-slot="{ open }" as="header" class="pb-24 bg-indigo-600 shrink-0">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-      <div class="relative py-5 flex items-center justify-center lg:justify-between">
+      <div
+        class="relative py-5 flex items-center justify-center lg:justify-between"
+      >
         <!-- Logo -->
         <div class="absolute left-0 flex-shrink-0 lg:static">
           <NuxtLink to="/">
@@ -102,5 +104,3 @@ const open = ref<boolean>(false)
     </TransitionRoot>
   </Popover>
 </template>
-
-

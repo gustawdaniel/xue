@@ -1,12 +1,12 @@
-import {AxiosError} from "axios";
+import { AxiosError } from "axios";
 
 export function getErrorMessage(e: unknown) {
   if (e instanceof AxiosError) {
-    return e.response?.data.message ?? e.message
+    return e.response?.data.message ?? e.message;
   }
   if (e instanceof Error) {
-    return e.message
+    return e.message;
   } else {
-    return `unknown error`
+    return `unknown error`;
   }
 }

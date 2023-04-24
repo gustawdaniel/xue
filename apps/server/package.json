@@ -5,8 +5,8 @@
   "main": "router.ts",
   "types": "router.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "doppler run -- tsx src/server.ts"
+    "test": "jest",
+    "dev": "doppler run -- tsx watch src/index.ts"
   },
   "keywords": [],
   "author": "",

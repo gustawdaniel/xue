@@ -22,7 +22,9 @@
 
     <div class="ml-10 space-x-4">
       <MenuItem
-        v-for="item in [...navigation, ...userNavigation].filter((n) => n.private === Boolean(isLoggedIn))"
+        v-for="item in [...navigation, ...userNavigation].filter(
+          (n) => n.private === Boolean(isLoggedIn)
+        )"
         :key="item.name"
         v-slot="{ active }"
       >
@@ -41,17 +43,16 @@
 </template>
 
 <script lang="ts" setup>
-import { Menu, MenuButton, MenuItem } from '@headlessui/vue'
-import type { PropType } from 'vue'
-import { computed } from '#imports'
-import { navigation, userNavigation } from '~/helpers/navigation'
+import { Menu, MenuButton, MenuItem } from "@headlessui/vue";
+import { computed } from "#imports";
+import { navigation, userNavigation } from "~/helpers/navigation";
 import { User } from "~/composables/user";
 
-const props = defineProps<{me: User|null}>()
+const props = defineProps<{ me: User | null }>();
 
 const isLoggedIn = computed<boolean>((): boolean => {
-  return Boolean(props.me) && Boolean(props.me?.email)
-})
+  return Boolean(props.me) && Boolean(props.me?.email);
+});
 
 // const {user} = useUser()
 

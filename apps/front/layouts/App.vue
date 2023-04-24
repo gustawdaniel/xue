@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { computed, useRuntimeConfig } from '#imports'
+import { computed, useRuntimeConfig } from "#imports";
+import Debug from "~/pages/debug.vue";
 
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 
 const showDebug = computed(() => {
-  return ['development', 'test'].includes(config.public.NUXT_ENV)
-})
+  return ["development", "test"].includes(config.public.NUXT_ENV);
+});
 </script>
 
 <template>
@@ -20,9 +21,14 @@ const showDebug = computed(() => {
         </ClientOnly>
       </div>
     </main>
-<!--    <FooterLogs v-if="showDebug" />-->
-<!--    <AppFooter v-else />-->
-    <AppFooter/>
+    <!--    <FooterLogs v-if="showDebug" />-->
+    <!--    <AppFooter v-else />-->
+
+      <Debug/>
+
+    <AppFooter />
+
+    <ModalFrame/>
   </div>
 </template>
 

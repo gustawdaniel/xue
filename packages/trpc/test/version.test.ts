@@ -1,13 +1,15 @@
 import { appRouter } from "../src";
-import packageJson from '../package.json'
+import packageJson from "../package.json";
 
 it("i can read version", async () => {
-  const version = await appRouter.createCaller({
-    user_id: "",
-    auth: false,
-    user: undefined
-  }).version();
+  const version = await appRouter
+    .createCaller({
+      user_id: "",
+      auth: false,
+      user: undefined,
+    })
+    .version();
 
-  expect(version).toBeDefined()
-  expect(version.version).toStrictEqual(packageJson.version)
+  expect(version).toBeDefined();
+  expect(version.version).toStrictEqual(packageJson.version);
 });

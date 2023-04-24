@@ -2,4 +2,4 @@ install:
 	pnpm install --shamefully-hoist
 
 up: install
-	pnpm dev
+	pnpm dev --concurrency 12

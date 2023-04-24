@@ -9,12 +9,15 @@
   },
   "dependencies": {
     "@trpc/server": "^10.20.0",
+    "cache-service": "workspace:*",
     "database": "workspace:*",
     "dayjs": "^1.11.7",
     "google-auth-library": "^8.7.0",
     "jsonwebtoken": "^9.0.0",
-    "words-selector": "workspace:*",
-    "translator": "workspace:*"
+    "superjson": "^1.12.3",
+    "supermemo": "^2.0.17",
+    "translator": "workspace:*",
+    "words-selector": "workspace:*"
   },
   "keywords": [],
   "author": "",

@@ -2,16 +2,29 @@ import { router } from "./trpc";
 import { z } from "zod";
 import { userList } from "./routes/userList";
 import { version } from "./routes/version";
+import { translate } from "./routes/translate";
 import { googleVerify } from "./routes/googleVerify";
 import { me } from "./routes/me";
 import { findRandomWord } from "./routes/findRandomWord";
-import { translate } from "./routes/translate";
+import { defaultCourse } from "./routes/defaultCourse";
+import { findCourses } from "./routes/findCourses";
+import { availableSets } from "./routes/availableSets";
+import { availableLanguages } from "./routes/availableLanguages";
+import { newCourse } from "./routes/newCourse";
+import { selectDefaultCourse } from "./routes/selectDefaultCourse";
+import { createAnswer } from "./routes/createAnswer";
 
 export * from "./context";
 
-const envVariables = z.object({
+export const serverVariables = z.object({
+  GOOGLE_CLIENT_EMAIL: z.string(),
+  GOOGLE_PRIVATE_KEY: z.string(),
+  DEEPL_API_KEY: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string()
+});
+
+export const envVariables = z.object({
   GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
   JWT_SECRET_KEY: z.string()
 });
 
@@ -31,9 +44,14 @@ export const appRouter = router({
   me,
   findRandomWord,
   translate,
+  defaultCourse,
+  findCourses,
+  availableSets,
+  availableLanguages,
+  newCourse,
+  selectDefaultCourse,
+  createAnswer
 });
-
-
 
 // Export type router type signature,
 // NOT the router itself.

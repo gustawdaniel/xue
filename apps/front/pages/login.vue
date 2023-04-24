@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-
 useHead({
   htmlAttrs: { class: "h-full bg-white" },
-  bodyAttrs: { class: "h-full" }
+  bodyAttrs: { class: "h-full" },
 });
-
 </script>
 
 <template>

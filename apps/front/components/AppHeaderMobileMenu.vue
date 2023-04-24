@@ -1,23 +1,27 @@
 <script lang="ts" setup>
-import { PopoverButton, PopoverOverlay, PopoverPanel, TransitionChild } from '@headlessui/vue'
-import { XCircleIcon } from '@heroicons/vue/24/outline'
-import { useRuntimeConfig } from '#imports'
-import { navigation, userNavigation } from '~/helpers/navigation'
+import {
+  PopoverButton,
+  PopoverOverlay,
+  PopoverPanel,
+  TransitionChild,
+} from "@headlessui/vue";
+import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { useRuntimeConfig } from "#imports";
+import { navigation, userNavigation } from "~/helpers/navigation";
 import { User } from "~/composables/user";
 
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 
 const props = defineProps<{
-  me: User | null
-}>()
+  me: User | null;
+}>();
 
 function click(event: MouseEvent) {
-  console.log('click', event)
+  console.log("click", event);
 }
 </script>
 
 <style scoped></style>
-
 
 <template>
   <div class="lg:hidden">
@@ -46,7 +50,9 @@ function click(event: MouseEvent) {
         class="z-30 absolute top-0 inset-x-0 max-w-3xl mx-auto w-full p-2 transition transform origin-top"
         focus
       >
-        <div class="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y divide-gray-200">
+        <div
+          class="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y divide-gray-200"
+        >
           <div class="pt-3 pb-2">
             <div class="flex items-center justify-between px-4">
               <NuxtLink to="/">
@@ -84,11 +90,19 @@ function click(event: MouseEvent) {
           <div v-if="props.me && props.me.email" class="pt-4 pb-2">
             <div class="flex items-center px-5">
               <div class="flex-shrink-0">
-                <img :src="props.me?.avatar" alt="" class="h-10 w-10 rounded-full" />
+                <img
+                  :src="props.me?.avatar"
+                  alt=""
+                  class="h-10 w-10 rounded-full"
+                />
               </div>
               <div class="ml-3 min-w-0 flex-1">
-                <div class="text-base font-medium text-gray-800 truncate">{{ props.me.name }}</div>
-                <div class="text-sm font-medium text-gray-500 truncate">{{ props.me.email }}</div>
+                <div class="text-base font-medium text-gray-800 truncate">
+                  {{ props.me.name }}
+                </div>
+                <div class="text-sm font-medium text-gray-500 truncate">
+                  {{ props.me.email }}
+                </div>
               </div>
               <!--                  <button type="button"-->
               <!--                          class="ml-auto flex-shrink-0 bg-white p-1 text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">-->

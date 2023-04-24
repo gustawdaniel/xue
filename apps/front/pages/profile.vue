@@ -1,53 +1,62 @@
-
 <script lang="ts" setup>
-import relativeTime from 'dayjs/plugin/relativeTime'
-import dayjs from 'dayjs'
-import { computed, definePageMeta, useAsyncData, useNuxtApp, useRuntimeConfig, useToken } from "#imports";
-type users = { id: string; email: string; name: string; avatar: string; password: string | null; created_at: string; last_login_at: string | null; default_course_id: string | null; roles: "admin"[]; };
+import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "dayjs";
+import { computed, definePageMeta, useRuntimeConfig, useToken } from "#imports";
+type users = {
+  id: string;
+  email: string;
+  name: string;
+  avatar: string;
+  password: string | null;
+  created_at: string;
+  last_login_at: string | null;
+  default_course_id: string | null;
+  roles: "admin"[];
+};
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
 definePageMeta({
-  layout: 'app',
-})
+  layout: "app",
+});
 
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 
-const token = useToken()
+const token = useToken();
 
-console.log('token', token.value)
+console.log("token", token.value);
 
 const me = ref<users | null>(null);
 
-const app = useNuxtApp();
+import { t } from "#imports";
+import MyDefaultCourse from "~/components/MyDefaultCourse.vue";
 
 onMounted(async () => {
-  me.value = await app.$client.me.query()
-})
+  me.value = await t.me.query();
+});
 
 const stats = computed(() => {
   if (me.value) {
     return [
       {
-        label: 'Account registered',
+        label: "Account registered",
         value: me.value.created_at,
         displayValue: dayjs(me.value.created_at).fromNow(true),
-        fallback: 'No registered',
+        fallback: "No registered",
       },
       {
-        label: 'Last login',
+        label: "Last login",
         value: me.value.last_login_at,
         displayValue: dayjs(me.value.last_login_at).fromNow(true),
-        fallback: 'No logged in yet',
+        fallback: "No logged in yet",
       },
-    ]
+    ];
   }
-  return []
-})
+  return [];
+});
 </script>
 
 <style scoped></style>
-
 
 <template>
   <div v-if="me" class="rounded-lg bg-white overflow-hidden shadow">
@@ -56,11 +65,17 @@ const stats = computed(() => {
       <div class="sm:flex sm:items-center sm:justify-between">
         <div class="sm:flex sm:space-x-5 sm:items-center">
           <div class="flex-shrink-0">
-            <img :src="me.avatar" alt="" class="mx-auto h-20 w-20 rounded-full border" />
+            <img
+              :src="me.avatar"
+              alt=""
+              class="mx-auto h-20 w-20 rounded-full border"
+            />
           </div>
           <div class="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
             <!--              <p class="text-sm font-medium text-gray-600">Welcome back,</p>-->
-            <p class="text-xl font-bold text-gray-900 sm:text-2xl">{{ me.name }}</p>
+            <p class="text-xl font-bold text-gray-900 sm:text-2xl">
+              {{ me.name }}
+            </p>
             <p class="text-sm font-medium text-gray-600">{{ me?.email }}</p>
           </div>
         </div>
@@ -72,12 +87,16 @@ const stats = computed(() => {
     <div
       class="border-t border-gray-200 bg-gray-50 grid grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-y-0 sm:divide-x"
     >
-      <div v-for="stat in stats" :key="stat.label" class="px-6 py-5 text-sm font-medium text-center">
+      <div
+        v-for="stat in stats"
+        :key="stat.label"
+        class="px-6 py-5 text-sm font-medium text-center"
+      >
         <div v-if="stat.value">
           <span class="text-gray-600">{{ stat.label }}</span>
-          {{ ' ' }}
+          {{ " " }}
           <span class="text-gray-900">{{ stat.displayValue }}</span>
-          {{ ' ' }}
+          {{ " " }}
           <span class="text-gray-600">ago</span>
         </div>
         <div v-else>
@@ -86,6 +105,7 @@ const stats = computed(() => {
       </div>
     </div>
 
-<!--    <AnswersChart />-->
+      <Courses/>
+    <!--    <AnswersChart />-->
   </div>
 </template>

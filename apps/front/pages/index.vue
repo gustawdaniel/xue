@@ -1,37 +1,29 @@
 <script lang="ts" setup>
 import { onMounted } from "#imports";
 
-const app = useNuxtApp()
-
+import { t } from "#imports";
 definePageMeta({
-  layout: 'app',
+  layout: "app",
   // layout: false,
-})
+});
 
 onMounted(async () => {
-  console.log('mounted');
+  console.log("mounted");
 
-  const res = await app.$client.userList.query();
+  const res = await t.userList.query();
 
   console.log("res", res);
-
-  // $client.trpc
-  //   .query('userList', { })
-  //   .then((res) => {
-  //     console.log('res', res)
-  //   })
-  //   .catch((err) => {
-  //     console.log('err', err)
-  //   });
-})
-
-
+});
 </script>
 
 <template>
-  <div>
-    Page: foo
-  </div>
+    <div>
+        <ClientOnly>
+            <Notifications />
+        </ClientOnly>
+
+        <Question />
+    </div>
 </template>
 
 <style scoped></style>
