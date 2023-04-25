@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted } from "#imports";
+import {onMounted, useDefaultCourse} from "#imports";
 
 import { t } from "#imports";
 definePageMeta({
@@ -14,6 +14,9 @@ onMounted(async () => {
 
   console.log("res", res);
 });
+
+const defaultCourse = useDefaultCourse();
+
 </script>
 
 <template>
@@ -22,7 +25,7 @@ onMounted(async () => {
             <Notifications />
         </ClientOnly>
 
-        <Question />
+        <Question v-if="defaultCourse" />
     </div>
 </template>
 

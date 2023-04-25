@@ -15,6 +15,7 @@ import { selectDefaultCourse } from "./routes/selectDefaultCourse";
 import { createAnswer } from "./routes/createAnswer";
 import { sentence } from "./routes/sentence";
 import { generateImage } from "./routes/generateImage";
+import { myLimit } from "./routes/myLimit";
 
 export * from "./context";
 
@@ -26,6 +27,8 @@ export const serverVariables = z.object({
   OPENAI_API_KEY: z.string(),
   REPLICATE_API_TOKEN: z.string(),
   REDIS_URL: z.string(),
+  INFLUXDB_TOKEN: z.string(),
+  INFLUXDB_BUCKET: z.string(),
 });
 
 export const envVariables = z.object({
@@ -57,7 +60,8 @@ export const appRouter = router({
   selectDefaultCourse,
   createAnswer,
   sentence,
-  generateImage
+  generateImage,
+  myLimit
 });
 
 // Export type router type signature,

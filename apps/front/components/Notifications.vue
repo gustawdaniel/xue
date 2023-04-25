@@ -50,7 +50,7 @@ const notifications = computed<InjectedNotification[]>(() => {
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
                 <p class="text-sm font-medium text-gray-900">{{ notification.title }}</p>
-                <p class="mt-1 text-sm text-gray-500" v-text="notification.text" />
+                <p class="mt-1 text-sm text-gray-500" v-html="notification.text" />
               </div>
               <div class="ml-4 flex-shrink-0 flex">
                 <button

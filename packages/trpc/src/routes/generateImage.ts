@@ -3,6 +3,9 @@ import { z } from "zod";
 import Replicate, { WebhookEventType } from "replicate";
 import { CacheService } from "cache-service";
 import assert from "assert/strict";
+import { RateLimiter } from "../services/RateLimiter";
+import { TRPCError } from "@trpc/server";
+import { writeInfluxLog } from "../storage/influx";
 
 type ReplicateOptions = {
   input: object;
@@ -16,6 +19,9 @@ export const generateImage = protectedProcedure
     prompt: z.string()
   }))
   .query(async ({ ctx, input }) => {
+    if(await RateLimiter.isLimited(ctx.user_id, 'image')) {
+      throw new TRPCError({code: 'TOO_MANY_REQUESTS'})
+    }
 
     const cacheService = new CacheService();
 
@@ -26,7 +32,7 @@ export const generateImage = protectedProcedure
       }
     };
 
-    return cacheService.wrap<string>(async () => {
+    const image = await cacheService.wrap<string>(async () => {
 
       const replicate = new Replicate({
         auth: ctx.env.REPLICATE_API_TOKEN
@@ -39,12 +45,16 @@ export const generateImage = protectedProcedure
         options
       ) as [string];
 
-      console.log("image", image);
-
       assert.ok(Boolean(image))
       assert.ok(image.startsWith('https://'))
 
       return image;
     }, { type: "image", model, options, provider: "replicate" }, ["replicate"]);
 
+    if(cacheService.cacheMissed()) {
+      await RateLimiter.setUsage(ctx.user_id, 'image')
+      writeInfluxLog(ctx.user_id, "image", cacheService.timeUsedNanoSeconds, ["replicate"])
+    }
+
+    return image;
   });

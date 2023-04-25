@@ -4,6 +4,9 @@ import { Translator } from "translator";
 import { CacheService } from "cache-service";
 import { Lang, TranslationProvider, translations } from "database";
 import { prisma } from "../storage/prisma";
+import { RateLimiter } from "../services/RateLimiter";
+import { TRPCError } from "@trpc/server";
+import { writeInfluxLog } from "../storage/influx";
 
 export const translate = protectedProcedure
   .input(
@@ -26,6 +29,10 @@ export const translate = protectedProcedure
       to_lang: Lang;
       provider: TranslationProvider;
     }> => {
+      if(await RateLimiter.isLimited(ctx.user_id, 'translation')) {
+        throw new TRPCError({code: 'TOO_MANY_REQUESTS'})
+      }
+
       const existingTranslation = await prisma.translations.findUnique({
         where: {
           from_text_from_lang_to_lang_provider:input
@@ -53,6 +60,11 @@ export const translate = protectedProcedure
         input.to_lang,
         input.provider
       );
+
+      if(cacheService.cacheMissed()) {
+        await RateLimiter.setUsage(ctx.user_id, 'translation');
+        writeInfluxLog(ctx.user_id, "translation", cacheService.timeUsedNanoSeconds, [input.provider])
+      }
 
       await prisma.translations.create({
         data: {

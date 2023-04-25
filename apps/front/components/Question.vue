@@ -230,46 +230,42 @@ const translatedWordRegex = computed<RegExp>(() => {
                                 <button
                                     class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md bg-white
                                     text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-                                    @click="showSentence = true"
-                                >
+                                    @click="showSentence = true">
                                     Sentence
                                 </button>
 
                                 <button
                                     class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md bg-white
                                     text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-                                    @click="showImage = true"
-                                >
+                                    @click="showImage = true">
                                     Image
                                 </button>
 
                                 <button
                                     class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md bg-white
                                     text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-                                    @click="showSentenceTranslation = true"
-                                >
+                                    @click="showSentenceTranslation = true">
                                     Translation
                                 </button>
                             </div>
 
                             <p v-if="showSentence" class="m-2">
-                                <WordHighlighter :query="wordsStore.activeWord.word">
+                              <WordHighlighter :query="wordsStore.activeWord.word">
                                 {{cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(fromLang)}}
-                                </WordHighlighter>
+                              </WordHighlighter>
                             </p>
 
                             <p v-if="showSentenceTranslation" class="m-2">
-                                <WordHighlighter :query="translatedWordRegex">
+                              <WordHighlighter :query="translatedWordRegex">
                                 {{cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(toLang)}}
-                                </WordHighlighter>
+                              </WordHighlighter>
                             </p>
 
                             <div>
-                                <img v-if="cardsStore.cards.get(wordsStore.activeWord.word).image && showImage"
-                                 :src="cardsStore.cards.get(wordsStore.activeWord.word).image"
-                                 :alt="cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(toLang)"
-                            class="m-auto"
-                            >
+                              <img v-if="cardsStore.cards.get(wordsStore.activeWord.word).image && showImage"
+                               :src="cardsStore.cards.get(wordsStore.activeWord.word).image"
+                               :alt="cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(toLang)"
+                               class="m-auto">
                             </div>
 
                             <pre>{{ correctTranslations }}</pre>

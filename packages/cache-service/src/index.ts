@@ -1,6 +1,7 @@
 import { prisma } from "./storage/prisma";
 import { Prisma } from "database";
 import hash from "object-hash";
+import * as process from "process";
 
 export interface RequestOptions {
   url: string;
@@ -10,6 +11,17 @@ export interface RequestOptions {
 }
 
 export class CacheService {
+  private readonly cacheUsages: boolean[];
+  public timeUsedNanoSeconds: bigint = 0n;
+
+  cacheMissed(): boolean {
+    return this.cacheUsages.some((v) => !v);
+  }
+
+  constructor() {
+    this.cacheUsages = []; // true for cache, and false for handler
+  }
+
   static httpToKey(options: RequestOptions): string {
     return hash(options);
   }
@@ -27,15 +39,20 @@ export class CacheService {
     meta: Prisma.InputJsonValue,
     tags: string[]
   ): Promise<T> {
+    const start = process.hrtime.bigint();
     const key: string = hash(meta);
     let value = await this.get<T>(key);
     if (value) {
+      this.cacheUsages.push(true);
       console.log("cache USED", meta)
+      this.timeUsedNanoSeconds = process.hrtime.bigint() - start;
       return value;
     }
+    this.cacheUsages.push(false);
     value = await handler();
     await this.set(key, value, meta, tags);
     console.log("cache SAVED", meta)
+    this.timeUsedNanoSeconds = process.hrtime.bigint() - start;
     return value;
   }
 

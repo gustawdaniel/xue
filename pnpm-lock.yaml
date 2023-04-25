@@ -198,6 +198,7 @@ importers:
 
   packages/trpc:
     specifiers:
+      '@influxdata/influxdb-client': ^1.33.2
       '@trpc/server': ^10.20.0
       '@types/jest': ^29.5.1
       '@types/jsonwebtoken': ^9.0.1
@@ -218,6 +219,7 @@ importers:
       typescript: ^5.0.4
       words-selector: workspace:*
     dependencies:
+      '@influxdata/influxdb-client': 1.33.2
       '@trpc/server': 10.20.0
       cache-service: link:../cache-service
       database: link:../database
@@ -1121,6 +1123,10 @@ packages:
 
   /@humanwhocodes/object-schema/1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+
+  /@influxdata/influxdb-client/1.33.2:
+    resolution: {integrity: sha512-RT5SxH+grHAazo/YK3UTuWK/frPWRM0N7vkrCUyqVprDgQzlLP+bSK4ak2Jv3QVF/pazTnsxWjvtKZdwskV5Xw==}
+    dev: false
 
   /@ioredis/commands/1.2.0:
     resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
