@@ -1,3 +1,3 @@
 export const useToken = () => {
-  return useCookie("api-token");
+  return useCookie<string>("api-token");
 };

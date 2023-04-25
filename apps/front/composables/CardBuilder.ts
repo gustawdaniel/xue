@@ -1,6 +1,6 @@
 import {  SimpleTranslation } from "~/intefaces/SelectedWord";
 import {Lang, TranslationProvider} from 'database';
-import { t } from '#imports';
+import { t } from '~/composables/t';
 import {useWordsStore} from "~/stores/wordsStore";
 import {useCardsStore} from "~/stores/cardsStore";
 

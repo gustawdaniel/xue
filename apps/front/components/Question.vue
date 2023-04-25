@@ -13,6 +13,9 @@ import {SelectedWord} from "~/intefaces/SelectedWord";
 import {useWordsStore} from "~/stores/wordsStore";
 import {useCardsStore} from "~/stores/cardsStore";
 import {storeToRefs} from "pinia";
+import {useCourseStore} from "~/stores/courseStore";
+import {Lang} from 'database';
+import WordHighlighter from "vue-word-highlighter";
 
 const wordsSelector = useWordsSelector();
 const defaultCourse = useDefaultCourse();
@@ -25,7 +28,6 @@ async function getNexWord(futureAnswers: Array<0 | 1> = []): Promise<SelectedWor
 
     try {
         const word = await wordsSelector.value.getNext(defaultCourse.id, futureAnswers);
-
 
         console.log("word", word);
         // activeWord.value = word;
@@ -41,14 +43,27 @@ const wordsStore = useWordsStore();
 const correctTranslations = computed<string[]>(() => {
     if (!wordsStore.activeWord!.word) return [];
     console.log("cards.value", cards.value);
-    return cards.value.get(wordsStore.activeWord!.word)?.translations ? [...new Set([...cards.value.get(wordsStore.activeWord!.word)!.translations.values()].map(tr => tr.meanings.map(m => m.to_text)).flat().filter((tr) => tr.length))] : []
+    return cards.value.get(wordsStore.activeWord!.word)?.translations ? [...new Set([...cards.value.get(wordsStore.activeWord!.word)!.translations.values()]
+        .map(tr => tr.meanings.map((m: {to_text: string}) => m.to_text)).flat().filter((tr) => tr.length))] : []
 })
 
 const input = ref<HTMLInputElement | null>(null)
 
 const answer = ref<string>('')
 const hint = ref<string>('')
+const showSentence = ref<boolean>(false)
+const showImage = ref<boolean>(false)
+const showSentenceTranslation = ref<boolean>(false)
 const displayed_at = ref<Date>(dayjs().toDate())
+
+function clearStateForNewWord(): void {
+    hint.value = ''
+    answer.value = ''
+    displayed_at.value = dayjs().toDate();
+    showSentence.value = true;
+    showImage.value = true;
+    showSentenceTranslation.value = true;
+}
 
 function getCompliment(): string {
     const compliments = ['Great answer!', 'Wow. You are awesome!']
@@ -81,6 +96,16 @@ function onEnter(el: HTMLElement) {
         }
     }
 }
+
+const courseStore = useCourseStore();
+
+const fromLang = computed<Lang>(() => {
+    return courseStore.defaultCourse!.source_set.lang;
+});
+
+const toLang = computed<Lang>(() => {
+    return courseStore.defaultCourse!.target_lang
+});
 
 onMounted(() => {
     if (process.client) {
@@ -123,7 +148,7 @@ async function check() {
         // }
     }
 
-    if (correctTranslations.value.find((trans) => trans === answer.value)) {
+    if (correctTranslations.value.find((trans: string) => trans === answer.value)) {
         notify({
             title: getCompliment(),
             text: getAnswerSummaryText(),
@@ -131,9 +156,8 @@ async function check() {
 
         const firstWasCorrect: boolean = hint.value === '';
 
-        hint.value = ''
-        answer.value = ''
-        displayed_at.value = dayjs().toDate()
+        clearStateForNewWord();
+
         if (defaultCourse) {
             return wordsSelector.value.moveBy(defaultCourse.id, [firstWasCorrect ? 1 : 0], ADVANCE_LEVEL)
         }
@@ -150,6 +174,11 @@ async function check() {
         }
     }
 }
+
+const translatedWordRegex = computed<RegExp>(() => {
+    return new RegExp(correctTranslations.value.join("|"), 'gi');
+});
+
 </script>
 
 <template>
@@ -166,12 +195,12 @@ async function check() {
                                 data-cy="word-to-translate">
                                 {{ wordsStore.activeWord.word }}
                             </h3>
-                            <div class="mt-2 max-w-xl text-sm text-gray-500">
+                            <div class="mt-2 text-sm text-gray-500">
                                 <!--                <p class="blur-sm">Change the email address you want associated with your account.</p>-->
                                 <p class="bg-violet-500 h-1 w-full"></p>
                             </div>
                             <form class="mt-5 sm:flex sm:items-center" @submit.prevent.stop="check">
-                                <div class="w-full sm:max-w-xs">
+                                <div class="w-full">
                                     <input
                                             id="answer"
                                             ref="input"
@@ -197,6 +226,52 @@ async function check() {
                             </p>
 
 
+                            <div class="grid grid-cols-3 gap-2 mt-2">
+                                <button
+                                    class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md bg-white
+                                    text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                                    @click="showSentence = true"
+                                >
+                                    Sentence
+                                </button>
+
+                                <button
+                                    class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md bg-white
+                                    text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                                    @click="showImage = true"
+                                >
+                                    Image
+                                </button>
+
+                                <button
+                                    class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md bg-white
+                                    text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                                    @click="showSentenceTranslation = true"
+                                >
+                                    Translation
+                                </button>
+                            </div>
+
+                            <p v-if="showSentence" class="m-2">
+                                <WordHighlighter :query="wordsStore.activeWord.word">
+                                {{cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(fromLang)}}
+                                </WordHighlighter>
+                            </p>
+
+                            <p v-if="showSentenceTranslation" class="m-2">
+                                <WordHighlighter :query="translatedWordRegex">
+                                {{cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(toLang)}}
+                                </WordHighlighter>
+                            </p>
+
+                            <div>
+                                <img v-if="cardsStore.cards.get(wordsStore.activeWord.word).image && showImage"
+                                 :src="cardsStore.cards.get(wordsStore.activeWord.word).image"
+                                 :alt="cardsStore.cards.get(wordsStore.activeWord.word).sentences.get(toLang)"
+                            class="m-auto"
+                            >
+                            </div>
+
                             <pre>{{ correctTranslations }}</pre>
                         </div>
                     </div>
@@ -206,7 +281,6 @@ async function check() {
         </div>
     </div>
 </template>
-
 
 <style>
 .slide-up-enter-active,

@@ -11,7 +11,7 @@ export const t = createTRPCProxyClient<AppRouter>({
       headers: () => {
         const headers: Map<string, string> = new Map<string, string>();
 
-        const token = useToken();
+        const token = useToken() as {value: string};
 
         console.log("token", token.value);
 

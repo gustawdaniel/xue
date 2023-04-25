@@ -1,3 +1,4 @@
+// @ts-ignore
 import {ComponentOptionsMixin, ComputedOptions, DefineComponent, MethodOptions} from "vue";
 
 // https://tailwindcss.com/docs/max-width

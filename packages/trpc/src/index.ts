@@ -13,6 +13,8 @@ import { availableLanguages } from "./routes/availableLanguages";
 import { newCourse } from "./routes/newCourse";
 import { selectDefaultCourse } from "./routes/selectDefaultCourse";
 import { createAnswer } from "./routes/createAnswer";
+import { sentence } from "./routes/sentence";
+import { generateImage } from "./routes/generateImage";
 
 export * from "./context";
 
@@ -20,7 +22,10 @@ export const serverVariables = z.object({
   GOOGLE_CLIENT_EMAIL: z.string(),
   GOOGLE_PRIVATE_KEY: z.string(),
   DEEPL_API_KEY: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string()
+  GOOGLE_CLIENT_SECRET: z.string(),
+  OPENAI_API_KEY: z.string(),
+  REPLICATE_API_TOKEN: z.string(),
+  REDIS_URL: z.string(),
 });
 
 export const envVariables = z.object({
@@ -50,7 +55,9 @@ export const appRouter = router({
   availableLanguages,
   newCourse,
   selectDefaultCourse,
-  createAnswer
+  createAnswer,
+  sentence,
+  generateImage
 });
 
 // Export type router type signature,

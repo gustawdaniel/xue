@@ -24,7 +24,7 @@ export class CacheService {
 
   async wrap<T extends Prisma.InputJsonValue>(
     handler: () => Promise<T>,
-    meta: Record<string, string>,
+    meta: Prisma.InputJsonValue,
     tags: string[]
   ): Promise<T> {
     const key: string = hash(meta);
@@ -42,7 +42,7 @@ export class CacheService {
   async set<T extends Prisma.InputJsonValue>(
     key: string,
     value: T,
-    meta: Record<string, string>,
+    meta: Prisma.InputJsonValue,
     tags: string[]
   ): Promise<void> {
     await prisma.caches.create({

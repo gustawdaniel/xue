@@ -2,9 +2,9 @@ import {AppRouter} from "trpc";
 import type {inferRouterOutputs} from "@trpc/server";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
-import {t} from '#imports';
+import {t} from '~/composables/t';
 import {useWordsStore} from "~/stores/wordsStore";
-import { SelectedWord} from "~/intefaces/SelectedWord";
+import {QueuedWord, SelectedWord} from "~/intefaces/SelectedWord";
 import {useCardsStore} from "~/stores/cardsStore";
 
 export class WordsSelector {
@@ -16,8 +16,17 @@ export class WordsSelector {
         this.cardsStore = useCardsStore();
     }
 
-    translateWord(word: string, is_new: boolean) {
-        this.cardsStore.translate(word, is_new)
+    buildCard(word: string, is_new: boolean) {
+        if(!this.cardsStore.cards.has(word)) {
+            this.cardsStore.cards.set(word, {
+                is_new,
+                translations: new Map(),
+                sentences: new Map()
+            })
+
+            this.cardsStore.translate(word, is_new);
+            this.cardsStore.setAllSentences(word, is_new).catch(console.error);
+        }
     }
 
     setWord(word: RouterOutput['findRandomWord'], futureResponses: Array<0 | 1> = []) {
@@ -30,7 +39,7 @@ export class WordsSelector {
 
         for (const [index, existing] of this.store.words.entries()) {
             if (existing.iteration > word.iteration) {
-                this.translateWord(item.word, item.new);
+                this.buildCard(item.word, item.new);
                 this.store.words.splice(index, index - 1, item);
                 return;
             } else if (existing.iteration === word.iteration && existing.futureResponses.join() === futureResponses.join()) {
@@ -38,7 +47,7 @@ export class WordsSelector {
             }
         }
 
-        this.translateWord(item.word, item.new);
+        this.buildCard(item.word, item.new);
         this.store.words.push(item);
     }
 
@@ -72,7 +81,7 @@ export class WordsSelector {
     async advancedLoad(courseId: string, level = 2, futureResponses: Array<0 | 1> = []): Promise<void> {
         console.log("advancedLoad", level, futureResponses);
 
-        const existingWord = this.store.words.find(w => w.futureResponses.join() === futureResponses.join());
+        const existingWord = this.store.words.find((w: QueuedWord) => w.futureResponses.join() === futureResponses.join());
 
         console.log("existingWord", existingWord);
 
@@ -84,7 +93,7 @@ export class WordsSelector {
 
             console.log("word", word, futureResponses);
 
-            if(this.store.words.find(w => w.word === word.word && w.futureResponses.length < futureResponses.length)) {
+            if(this.store.words.find((w: QueuedWord) => w.word === word.word && w.futureResponses.length < futureResponses.length)) {
                 console.log("skip at existing word", word, futureResponses);
                 return ;
             }
@@ -105,8 +114,8 @@ export class WordsSelector {
     async moveBy(courseId: string, answers: Array<0 | 1>, level = 2) {
         console.log("moveBy", answers);
         this.store.words = this.store.words
-            .filter(w => w.futureResponses.length >= answers.length && !w.futureResponses.join('').startsWith(answers.join('')))
-            .map(w => ({
+            .filter((w: QueuedWord) => w.futureResponses.length >= answers.length && !w.futureResponses.join('').startsWith(answers.join('')))
+            .map((w: QueuedWord) => ({
                 ...w,
                 futureResponses: w.futureResponses.filter((r,i) => i >= answers.length)
             }));
